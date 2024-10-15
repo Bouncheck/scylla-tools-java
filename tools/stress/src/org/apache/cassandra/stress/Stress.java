@@ -56,6 +56,7 @@ public final class Stress
 
     public static void main(String[] arguments) throws Exception
     {
+        System.out.println("running modified cs\n");
         if (FBUtilities.isWindows)
             WindowsTimer.startTimerPeriod(1);
 
