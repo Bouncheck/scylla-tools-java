@@ -18,6 +18,9 @@
 package org.apache.cassandra.stress;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -132,6 +135,9 @@ public final class Stress
                         e.printStackTrace();
                 }
 
+                System.out.println("thread dump Stress.java");
+                System.out.println(threadDump(true, true));
+
                 out.close();
                 inp.close();
 
@@ -196,4 +202,12 @@ public final class Stress
         }
     }
 
+    private static String threadDump(boolean lockedMonitors, boolean lockedSynchronizers) {
+        StringBuffer threadDump = new StringBuffer(System.lineSeparator());
+        ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+        for(ThreadInfo threadInfo : threadMXBean.dumpAllThreads(lockedMonitors, lockedSynchronizers)) {
+            threadDump.append(threadInfo.toString());
+        }
+        return threadDump.toString();
+    }
 }
