@@ -34,7 +34,7 @@
 
     <!-- default version and SCM information -->
     <property name="base.version" value="3.11.13"/>
-    <property name="base.javaDriverVersion" value="3.11.5.3"/>
+    <property name="base.javaDriverVersion" value="3.11.5.4-TABDEBUG"/>
     <property name="scm.connection" value="scm:https://gitbox.apache.org/repos/asf/cassandra.git"/>
     <property name="scm.developerConnection" value="scm:https://gitbox.apache.org/repos/asf/cassandra.git"/>
     <property name="scm.url" value="https://gitbox.apache.org/repos/asf?p=cassandra.git;a=tree"/>
@@ -188,6 +188,9 @@
         <fileset dir="${build.dir.lib}">
             <include name="**/*.jar" />
         </fileset>
+	<fileset dir="${basedir}/persistent_lib">
+            <include name="*.jar"/>
+        </fileset>
     </path>
     <path id="cassandra.classpath.test">
         <file file="${build.dir}/${final.name}.jar"/> <!-- we need the jar for tests and benchmarks (multi-version jar) -->
@@ -201,6 +204,10 @@
             <exclude name="**/*-sources.jar"/>
             <exclude name="**/ant-*.jar"/>
         </fileset>
+	<fileset dir="${basedir}/persistent_lib">
+            <include name="*.jar"/>
+        </fileset>
+
     </path>
 
   <macrodef name="create-javadoc">
