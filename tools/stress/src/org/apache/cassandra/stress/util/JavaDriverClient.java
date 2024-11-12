@@ -54,8 +54,8 @@ public class JavaDriverClient
 
     private final ProtocolVersion protocolVersion;
     private final EncryptionOptions.ClientEncryptionOptions encryptionOptions;
-    private Cluster cluster;
-    private Session session;
+    public Cluster cluster;
+    public Session session;
     private final LoadBalancingPolicy loadBalancingPolicy;
     private final File cloudConfigFile;
 

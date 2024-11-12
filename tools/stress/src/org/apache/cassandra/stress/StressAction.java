@@ -17,9 +17,18 @@
  */
 package org.apache.cassandra.stress;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Queue;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,6 +49,24 @@ import org.jctools.queues.SpscArrayQueue;
 import org.jctools.queues.SpscUnboundedArrayQueue;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.Host;
+import com.datastax.driver.core.Metadata;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.TabletMap;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NavigableSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.UUID;
 
 public class StressAction implements Runnable
 {
@@ -264,7 +291,61 @@ public class StressAction implements Runnable
 
         if (durationUnits != null)
         {
-            Uninterruptibles.sleepUninterruptibly(duration, durationUnits);
+            for(int i = 0; i < duration; i++) {
+                Uninterruptibles.sleepUninterruptibly(1, durationUnits);
+                if (i%10 == 9) {
+                    JavaDriverClient jclient = settings.getJavaDriverClient();
+                    if (jclient != null) {
+                        Session session = jclient.session;
+                        Collection<Host> connectedHosts = session.getState().getConnectedHosts();
+                        Collection<Host> allhosts = session.getCluster().getMetadata().getAllHosts();
+                        Map<TabletMap.KeyspaceTableNamePair, NavigableSet<TabletMap.Tablet>> mapping = new TreeMap<>(session.getCluster().getMetadata().getTabletMap().getMapping());
+                        LocalDateTime now = LocalDateTime.now();
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        String formattedDate = now.format(formatter);
+                        System.out.println("Current date and time: " + formattedDate);
+                        System.out.println("Connected hosts:");
+                        for(Host host : connectedHosts) {
+                            String broadcastAddress = host.getBroadcastAddress() != null ? host.getBroadcastAddress().toString() : "null";
+                            String broadcastRpcAddress = host.getBroadcastRpcAddress() != null ? host.getBroadcastRpcAddress().toString() : "null";
+                            String broadcastSocketAddress = host.getBroadcastSocketAddress() != null ? host.getBroadcastSocketAddress().toString() : "null";
+                            String listenAddress = host.getListenAddress() != null ? host.getListenAddress().toString() : "null";
+                            String uuid = host.getHostId() != null ? host.getHostId().toString() : "null";
+                            System.out.println(host.toString() + " ## UUID: " + uuid  + " #State: " + host.getState() + " # bcastAddr " + broadcastAddress + " # bcastRpc " + broadcastRpcAddress + " # bcastSock " + broadcastSocketAddress + " # listAddr " + listenAddress);
+                        }
+                        System.out.println("All hosts:");
+                        for(Host host : allhosts) {
+                            String broadcastAddress = host.getBroadcastAddress() != null ? host.getBroadcastAddress().toString() : "null";
+                            String broadcastRpcAddress = host.getBroadcastRpcAddress() != null ? host.getBroadcastRpcAddress().toString() : "null";
+                            String broadcastSocketAddress = host.getBroadcastSocketAddress() != null ? host.getBroadcastSocketAddress().toString() : "null";
+                            String listenAddress = host.getListenAddress() != null ? host.getListenAddress().toString() : "null";
+                            String uuid = host.getHostId() != null ? host.getHostId().toString() : "null";
+                            System.out.println(host.toString() + " ## UUID: " + uuid  + " #State: " + host.getState() + " # bcastAddr " + broadcastAddress + " # bcastRpc " + broadcastRpcAddress + " # bcastSock " + broadcastSocketAddress + " # listAddr " + listenAddress);
+                        }
+                        for (TabletMap.KeyspaceTableNamePair key : mapping.keySet()) {
+                            if (key.getTableName().equals("stress") || key.getTableName().equals("Stress") || key.getTableName().equals("STRESS")) {
+                                HashMap<UUID, Integer> hist = new HashMap<>();
+                                System.out.println("Calculating stats for " + key.getKeyspace() + "." + key.getTableName());
+                                NavigableSet<TabletMap.Tablet> set = new TreeSet<>(mapping.get(key));
+                                for (TabletMap.Tablet tablet : set) {
+                                    for (TabletMap.HostShardPair pair : tablet.getReplicas()) {
+                                        Integer count = hist.getOrDefault(pair.getHost(), 0);
+                                        count = count + 1;
+                                        hist.put(pair.getHost(), count);
+                                    }
+                                }
+                                Integer total = 0;
+                                for (Map.Entry<UUID, Integer> entry : hist.entrySet()) {
+                                    System.out.println(entry.getKey() + ": " + entry.getValue());
+                                    total += entry.getValue();
+                                }
+                                System.out.println("End of distribution, total tablets: " + total);
+                            }
+                        }
+                    }
+                }
+            }
+
             workManager.stop();
         }
         else if (opCount <= 0)
