@@ -34,7 +34,7 @@
 
     <!-- default version and SCM information -->
     <property name="base.version" value="3.11.13"/>
-    <property name="base.javaDriverVersion" value="3.11.5.4-TABDEBUG"/>
+    <property name="base.javaDriverVersion" value="3.11.5.3"/>
     <property name="scm.connection" value="scm:https://gitbox.apache.org/repos/asf/cassandra.git"/>
     <property name="scm.developerConnection" value="scm:https://gitbox.apache.org/repos/asf/cassandra.git"/>
     <property name="scm.url" value="https://gitbox.apache.org/repos/asf?p=cassandra.git;a=tree"/>
@@ -188,9 +188,6 @@
         <fileset dir="${build.dir.lib}">
             <include name="**/*.jar" />
         </fileset>
-	<fileset dir="${basedir}/persistent_lib">
-            <include name="*.jar"/>
-        </fileset>
     </path>
     <path id="cassandra.classpath.test">
         <file file="${build.dir}/${final.name}.jar"/> <!-- we need the jar for tests and benchmarks (multi-version jar) -->
@@ -204,10 +201,6 @@
             <exclude name="**/*-sources.jar"/>
             <exclude name="**/ant-*.jar"/>
         </fileset>
-	<fileset dir="${basedir}/persistent_lib">
-            <include name="*.jar"/>
-        </fileset>
-
     </path>
 
   <macrodef name="create-javadoc">
@@ -464,9 +457,7 @@
           <dependency groupId="com.clearspring.analytics" artifactId="stream" version="2.5.2">
             <exclusion groupId="it.unimi.dsi" artifactId="fastutil" />
           </dependency>
-          <!--
           <dependency groupId="com.scylladb" artifactId="scylla-driver-core" version="${base.javaDriverVersion}" classifier="shaded" />
-          -->
 	  <!-- UPDATE AND UNCOMMENT ON THE DRIVER RELEASE, BEFORE 4.0 RELEASE
           <dependency groupId="com.datastax.cassandra" artifactId="cassandra-driver-core" version="3.0.1" classifier="shaded">
             <exclusion groupId="io.netty" artifactId="netty-buffer"/>
@@ -580,14 +571,12 @@
         <dependency groupId="org.apache.hadoop" artifactId="hadoop-minicluster"/>
         <dependency groupId="com.google.code.findbugs" artifactId="jsr305"/>
         <dependency groupId="org.antlr" artifactId="antlr"/>
-	<!--
         <dependency groupId="com.scylladb" artifactId="scylla-driver-core" classifier="shaded">
           <exclusion groupId="io.netty" artifactId="netty-buffer"/>
           <exclusion groupId="io.netty" artifactId="netty-codec"/>
           <exclusion groupId="io.netty" artifactId="netty-handler"/>
           <exclusion groupId="io.netty" artifactId="netty-transport"/>
         </dependency>
-        -->
         <dependency groupId="org.eclipse.jdt.core.compiler" artifactId="ecj"/>
         <dependency groupId="org.caffinitas.ohc" artifactId="ohc-core" version="0.4.4" />
         <dependency groupId="org.caffinitas.ohc" artifactId="ohc-core-j8" version="0.4.4" />
@@ -666,14 +655,12 @@
         <dependency groupId="org.apache.hadoop" artifactId="hadoop-minicluster" optional="true" scope="provided"/>
 
         <!-- don't need the Java Driver to run, but if you use the hadoop stuff or UDFs -->
-	<!--
         <dependency groupId="com.scylladb" artifactId="scylla-driver-core" classifier="shaded" optional="true">
           <exclusion groupId="io.netty" artifactId="netty-buffer"/>
           <exclusion groupId="io.netty" artifactId="netty-codec"/>
           <exclusion groupId="io.netty" artifactId="netty-handler"/>
           <exclusion groupId="io.netty" artifactId="netty-transport"/>
         </dependency>
-	-->
 
         <!-- don't need jna to run, but nice to have -->
         <dependency groupId="net.java.dev.jna" artifactId="jna"/>
