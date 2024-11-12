@@ -289,11 +289,17 @@ public class StressAction implements Runnable
 
         metrics.start();
 
+        System.out.println("Test system out println");
+        System.err.println("Test system err println");
+        output.println("Test output println");
         if (durationUnits != null)
         {
-            for(int i = 0; i < duration; i++) {
+
+            for(int iii = 0; iii < duration; iii++) {
                 Uninterruptibles.sleepUninterruptibly(1, durationUnits);
-                if (i%10 == 9) {
+                if ((iii%10) == 5) {
+                    System.out.println("Trying to print through the system out");
+                    output.println("Trying to print through output instance");
                     JavaDriverClient jclient = settings.getJavaDriverClient();
                     if (jclient != null) {
                         Session session = jclient.session;
@@ -303,29 +309,29 @@ public class StressAction implements Runnable
                         LocalDateTime now = LocalDateTime.now();
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                         String formattedDate = now.format(formatter);
-                        System.out.println("Current date and time: " + formattedDate);
-                        System.out.println("Connected hosts:");
+                        output.println("Current date and time: " + formattedDate);
+                        output.println("Connected hosts:");
                         for(Host host : connectedHosts) {
                             String broadcastAddress = host.getBroadcastAddress() != null ? host.getBroadcastAddress().toString() : "null";
                             String broadcastRpcAddress = host.getBroadcastRpcAddress() != null ? host.getBroadcastRpcAddress().toString() : "null";
                             String broadcastSocketAddress = host.getBroadcastSocketAddress() != null ? host.getBroadcastSocketAddress().toString() : "null";
                             String listenAddress = host.getListenAddress() != null ? host.getListenAddress().toString() : "null";
                             String uuid = host.getHostId() != null ? host.getHostId().toString() : "null";
-                            System.out.println(host.toString() + " ## UUID: " + uuid  + " #State: " + host.getState() + " # bcastAddr " + broadcastAddress + " # bcastRpc " + broadcastRpcAddress + " # bcastSock " + broadcastSocketAddress + " # listAddr " + listenAddress);
+                            output.println(host.toString() + " ## UUID: " + uuid  + " #State: " + host.getState() + " # bcastAddr " + broadcastAddress + " # bcastRpc " + broadcastRpcAddress + " # bcastSock " + broadcastSocketAddress + " # listAddr " + listenAddress);
                         }
-                        System.out.println("All hosts:");
+                        output.println("All hosts:");
                         for(Host host : allhosts) {
                             String broadcastAddress = host.getBroadcastAddress() != null ? host.getBroadcastAddress().toString() : "null";
                             String broadcastRpcAddress = host.getBroadcastRpcAddress() != null ? host.getBroadcastRpcAddress().toString() : "null";
                             String broadcastSocketAddress = host.getBroadcastSocketAddress() != null ? host.getBroadcastSocketAddress().toString() : "null";
                             String listenAddress = host.getListenAddress() != null ? host.getListenAddress().toString() : "null";
                             String uuid = host.getHostId() != null ? host.getHostId().toString() : "null";
-                            System.out.println(host.toString() + " ## UUID: " + uuid  + " #State: " + host.getState() + " # bcastAddr " + broadcastAddress + " # bcastRpc " + broadcastRpcAddress + " # bcastSock " + broadcastSocketAddress + " # listAddr " + listenAddress);
+                            output.println(host.toString() + " ## UUID: " + uuid  + " #State: " + host.getState() + " # bcastAddr " + broadcastAddress + " # bcastRpc " + broadcastRpcAddress + " # bcastSock " + broadcastSocketAddress + " # listAddr " + listenAddress);
                         }
                         for (TabletMap.KeyspaceTableNamePair key : mapping.keySet()) {
                             if (key.getTableName().equals("stress") || key.getTableName().equals("Stress") || key.getTableName().equals("STRESS")) {
                                 HashMap<UUID, Integer> hist = new HashMap<>();
-                                System.out.println("Calculating stats for " + key.getKeyspace() + "." + key.getTableName());
+                                output.println("Calculating stats for " + key.getKeyspace() + "." + key.getTableName());
                                 NavigableSet<TabletMap.Tablet> set = new TreeSet<>(mapping.get(key));
                                 for (TabletMap.Tablet tablet : set) {
                                     for (TabletMap.HostShardPair pair : tablet.getReplicas()) {
@@ -336,10 +342,10 @@ public class StressAction implements Runnable
                                 }
                                 Integer total = 0;
                                 for (Map.Entry<UUID, Integer> entry : hist.entrySet()) {
-                                    System.out.println(entry.getKey() + ": " + entry.getValue());
+                                    output.println(entry.getKey() + ": " + entry.getValue());
                                     total += entry.getValue();
                                 }
-                                System.out.println("End of distribution, total tablets: " + total);
+                                output.println("End of distribution, total tablets: " + total);
                             }
                         }
                     }
