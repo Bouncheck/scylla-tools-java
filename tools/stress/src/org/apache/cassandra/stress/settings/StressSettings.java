@@ -355,7 +355,7 @@ public class StressSettings implements Serializable
 
     public void printSettings(ResultLogger out)
     {
-        out.println("******************** Stress Settings ********************");
+        out.println("******************** Stress Settings modified v1 ********************");
         // done
         out.println("Command:");
         command.printSettings(out);
