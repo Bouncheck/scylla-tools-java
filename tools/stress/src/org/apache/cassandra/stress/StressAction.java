@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Queue;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -289,11 +288,12 @@ public class StressAction implements Runnable
 
         metrics.start();
 
-        System.out.println("Test system out println");
-        System.err.println("Test system err println");
-        output.println("Test output println");
+
         if (durationUnits != null)
         {
+            System.out.println("Test system out println");
+            //System.err.println("Test system err println");
+            output.println("Test output println");
 
             for(int iii = 0; iii < duration; iii++) {
                 Uninterruptibles.sleepUninterruptibly(1, durationUnits);
@@ -305,7 +305,7 @@ public class StressAction implements Runnable
                         Session session = jclient.session;
                         Collection<Host> connectedHosts = session.getState().getConnectedHosts();
                         Collection<Host> allhosts = session.getCluster().getMetadata().getAllHosts();
-                        Map<TabletMap.KeyspaceTableNamePair, NavigableSet<TabletMap.Tablet>> mapping = new TreeMap<>(session.getCluster().getMetadata().getTabletMap().getMapping());
+                        HashMap<TabletMap.KeyspaceTableNamePair, NavigableSet<TabletMap.Tablet>> mapping = new HashMap<>(session.getCluster().getMetadata().getTabletMap().getMapping());
                         LocalDateTime now = LocalDateTime.now();
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                         String formattedDate = now.format(formatter);
