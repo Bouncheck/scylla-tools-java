@@ -331,24 +331,38 @@ public class StressAction implements Runnable
                             output.println(host.toString() + " ## UUID: " + uuid  + " #State: " + host.getState() + " # bcastAddr " + broadcastAddress + " # bcastRpc " + broadcastRpcAddress + " # bcastSock " + broadcastSocketAddress + " # listAddr " + listenAddress);
                         }
                         for (TabletMap.KeyspaceTableNamePair key : mapping.keySet()) {
-                            //if (true) {
                                 HashMap<UUID, Integer> hist = new HashMap<>();
-                                output.println("Calculating stats for " + key.getKeyspace() + "." + key.getTableName());
+                                HashMap<UUID, Integer>[] ranks = new HashMap[9];
+                                System.out.println("Calculating stats for " + key.getKeyspace() + "." + key.getTableName());
                                 NavigableSet<TabletMap.Tablet> set = new TreeSet<>(mapping.get(key));
                                 for (TabletMap.Tablet tablet : set) {
+                                    int iter = 0;
                                     for (TabletMap.HostShardPair pair : tablet.getReplicas()) {
+                                        iter++;
+                                        Integer rcount = ranks[iter].getOrDefault(pair.getHost(), 0);
+                                        rcount = rcount + 1;
+                                        //
+                                        ranks[iter].put(pair.getHost(), rcount);
                                         Integer count = hist.getOrDefault(pair.getHost(), 0);
                                         count = count + 1;
                                         hist.put(pair.getHost(), count);
                                     }
                                 }
+
                                 Integer total = 0;
                                 for (Map.Entry<UUID, Integer> entry : hist.entrySet()) {
-                                    output.println(entry.getKey() + ": " + entry.getValue());
+                                    System.out.println(entry.getKey() + ": " + entry.getValue());
                                     total += entry.getValue();
                                 }
-                                output.println("End of distribution, total tablets: " + total);
-                            //}
+                                System.out.println("End of distribution, total tablets: " + total);
+
+
+                                for (int iter = 1; iter <= 3; iter++) {
+                                    System.out.println("ranks for iter == " + iter);
+                                    for (Map.Entry<UUID, Integer> entry : ranks[iter].entrySet()) {
+                                        System.out.println(entry.getKey() + ": " + entry.getValue());
+                                    }
+                                }
                         }
                     }
                 }
