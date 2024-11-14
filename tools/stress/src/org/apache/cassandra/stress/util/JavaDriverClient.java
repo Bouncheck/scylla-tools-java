@@ -111,7 +111,7 @@ public class JavaDriverClient
         }
         if (settings.node.isWhiteList)
             ret = new WhiteListPolicy(ret, settings.node.resolveAll(settings.port.nativePort));
-        return new TokenAwarePolicy(ret, ReplicaOrdering.NEUTRAL);
+        return new TokenAwarePolicy(ret, ReplicaOrdering.RANDOM);
     }
 
     public PreparedStatement prepare(String query)
