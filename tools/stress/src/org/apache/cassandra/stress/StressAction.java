@@ -28,6 +28,8 @@ import java.util.NavigableSet;
 import java.util.Queue;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -305,7 +307,7 @@ public class StressAction implements Runnable
                         Session session = jclient.session;
                         Collection<Host> connectedHosts = session.getState().getConnectedHosts();
                         Collection<Host> allhosts = session.getCluster().getMetadata().getAllHosts();
-                        HashMap<TabletMap.KeyspaceTableNamePair, NavigableSet<TabletMap.Tablet>> mapping = new HashMap<>(session.getCluster().getMetadata().getTabletMap().getMapping());
+                        ConcurrentMap<TabletMap.KeyspaceTableNamePair, NavigableSet<TabletMap.Tablet>> mapping = new ConcurrentHashMap<TabletMap.KeyspaceTableNamePair, NavigableSet<TabletMap.Tablet>>(session.getCluster().getMetadata().getTabletMap().getMapping());
                         LocalDateTime now = LocalDateTime.now();
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                         String formattedDate = now.format(formatter);
@@ -329,7 +331,7 @@ public class StressAction implements Runnable
                             output.println(host.toString() + " ## UUID: " + uuid  + " #State: " + host.getState() + " # bcastAddr " + broadcastAddress + " # bcastRpc " + broadcastRpcAddress + " # bcastSock " + broadcastSocketAddress + " # listAddr " + listenAddress);
                         }
                         for (TabletMap.KeyspaceTableNamePair key : mapping.keySet()) {
-                            if (key.getTableName().equals("stress") || key.getTableName().equals("Stress") || key.getTableName().equals("STRESS")) {
+                            //if (true) {
                                 HashMap<UUID, Integer> hist = new HashMap<>();
                                 output.println("Calculating stats for " + key.getKeyspace() + "." + key.getTableName());
                                 NavigableSet<TabletMap.Tablet> set = new TreeSet<>(mapping.get(key));
@@ -346,7 +348,7 @@ public class StressAction implements Runnable
                                     total += entry.getValue();
                                 }
                                 output.println("End of distribution, total tablets: " + total);
-                            }
+                            //}
                         }
                     }
                 }
