@@ -333,6 +333,9 @@ public class StressAction implements Runnable
                         for (TabletMap.KeyspaceTableNamePair key : mapping.keySet()) {
                                 HashMap<UUID, Integer> hist = new HashMap<>();
                                 HashMap<UUID, Integer>[] ranks = new HashMap[9];
+                                for(int zzz = 0; zzz < 9; zzz++){
+                                    ranks[zzz] = new HashMap<>();
+                                }
                                 System.out.println("Calculating stats for " + key.getKeyspace() + "." + key.getTableName());
                                 NavigableSet<TabletMap.Tablet> set = new TreeSet<>(mapping.get(key));
                                 for (TabletMap.Tablet tablet : set) {
